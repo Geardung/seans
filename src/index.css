@@ -9,6 +9,7 @@
 html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  height: 100%;
 }
 
 body {
@@ -16,8 +17,35 @@ body {
   color: #e0e0e0;
   font-family: "Inter", system-ui, -apple-system, sans-serif;
   line-height: 1.5;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  min-height: 100dvh;
+  min-height: 100svh;
+}
+
+#root {
+  width: 100%;
+  max-width: 100vw;
+  min-height: 100dvh;
+  min-height: 100svh;
 }
 
 video {
   background: #000;
+}
+
+/* Prevent iOS rubber-band overscroll */
+@media (hover: none) and (orientation: landscape) {
+  html, body {
+    overscroll-behavior: none;
+    overflow: hidden;
+    height: 100dvh;
+    height: 100svh;
+  }
+
+  #root {
+    height: 100dvh;
+    height: 100svh;
+    overflow: hidden;
+  }
 }
