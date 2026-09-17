@@ -14,7 +14,9 @@ export interface Episode {
   voiceovers: Voiceover[];
 }
 
-const BASE = "/s3";
+const BASE = import.meta.env.DEV
+  ? "/s3"
+  : "https://s3.regru.cloud/watchin-mokchin";
 
 const episodeTitles: Record<number, string> = {
   1: "Tragedy",
