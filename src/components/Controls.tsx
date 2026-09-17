@@ -69,31 +69,9 @@ export function Controls({
       </div>
 
       <div className="episode-nav">
-        <button
-          disabled={currentEpisode.episode <= 1}
-          onClick={() => {
-            const prev = episodes.find(
-              (e) => e.episode === currentEpisode.episode - 1
-            );
-            if (prev) onEpisodeChange(prev);
-          }}
-        >
-          Previous
-        </button>
         <span className="episode-info">
           Episode {currentEpisode.episode} of {episodes.length}
         </span>
-        <button
-          disabled={currentEpisode.episode >= episodes.length}
-          onClick={() => {
-            const next = episodes.find(
-              (e) => e.episode === currentEpisode.episode + 1
-            );
-            if (next) onEpisodeChange(next);
-          }}
-        >
-          Next
-        </button>
       </div>
     </div>
   );

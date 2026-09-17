@@ -10,10 +10,11 @@ export interface Episode {
   season: number;
   episode: number;
   title: string;
+  poster: string;
   voiceovers: Voiceover[];
 }
 
-const BASE = "https://s3.regru.cloud/watchin-mokchin";
+const BASE = "/s3";
 
 const episodeTitles: Record<number, string> = {
   1: "Tragedy",
@@ -35,6 +36,7 @@ export const episodes: Episode[] = Array.from({ length: 12 }, (_, i) => ({
   season: 1,
   episode: i + 1,
   title: episodeTitles[i + 1] ?? `Episode ${i + 1}`,
+  poster: `${BASE}/season1/poster${String(i + 1).padStart(2, "0")}.jpg`,
   voiceovers: [
     {
       name: "SATRip",

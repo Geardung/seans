@@ -1,24 +1,30 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { episodes } from "./data/episodes";
 import { Player } from "./components/Player";
-import { Controls } from "./components/Controls";
 import type { Episode, Voiceover } from "./data/episodes";
 import "./App.css";
 
 export default function App() {
-  const [currentEpisode, setCurrentEpisode] = useState<Episode>(episodes[0]);
+  const savedEpId = localStorage.getItem("player-episode");
+  const savedEp = savedEpId ? episodes.find((e) => e.id === savedEpId) : null;
+
+  const [currentEpisode, setCurrentEpisode] = useState<Episode>(savedEp ?? episodes[0]);
   const [currentVoiceover, setCurrentVoiceover] = useState<Voiceover>(
-    episodes[0].voiceovers[0]
+    (savedEp ?? episodes[0]).voiceovers[0]
   );
 
   const handleEpisodeChange = (ep: Episode) => {
     setCurrentEpisode(ep);
     setCurrentVoiceover(ep.voiceovers[0]);
+    localStorage.setItem("player-episode", ep.id);
   };
 
-  const handleVoiceoverChange = (v: Voiceover) => {
-    setCurrentVoiceover(v);
-  };
+  // Persist initial episode on first visit
+  useEffect(() => {
+    if (!savedEpId) {
+      localStorage.setItem("player-episode", currentEpisode.id);
+    }
+  }, []);
 
   return (
     <div className="app">
@@ -29,13 +35,24 @@ export default function App() {
       </header>
 
       <main className="main">
-        <Player src={currentVoiceover.src} audioSrc={currentVoiceover.audioSrc} />
-        <Controls
+        <Player
+          src={currentVoiceover.src}
+          poster={currentEpisode.poster}
           episodes={episodes}
           currentEpisode={currentEpisode}
-          currentVoiceover={currentVoiceover}
+          onPrev={() => {
+            const prev = episodes.find(
+              (e) => e.episode === currentEpisode.episode - 1
+            );
+            if (prev) handleEpisodeChange(prev);
+          }}
+          onNext={() => {
+            const next = episodes.find(
+              (e) => e.episode === currentEpisode.episode + 1
+            );
+            if (next) handleEpisodeChange(next);
+          }}
           onEpisodeChange={handleEpisodeChange}
-          onVoiceoverChange={handleVoiceoverChange}
         />
       </main>
 

@@ -32,7 +32,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0 1rem;
+  padding: 0 1rem 2rem;
   max-width: 960px;
   width: 100%;
   margin: 0 auto;
@@ -44,20 +44,36 @@
   aspect-ratio: 16 / 9;
   background: #000;
   border-radius: 8px;
-  overflow: hidden;
   box-shadow: 0 4px 24px rgba(155, 27, 48, 0.15);
+  position: relative;
+  z-index: 1;
 }
 
 .player-wrapper video {
   width: 100%;
   height: 100%;
   display: block;
+  border-radius: 8px;
+}
+
+.poster-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  background-size: cover;
+  background-position: center;
+  transition: opacity 0.3s ease;
 }
 
 /* Controls */
 .controls {
   width: 100%;
-  margin-top: 1.25rem;
+  margin-top: 2rem;
+  position: relative;
+  z-index: 0;
 }
 
 .controls-row {
@@ -161,10 +177,55 @@
   --plyr-badge-background: #9b1b30;
 }
 
+.plyr__controls {
+  z-index: 2;
+}
+
 .plyr__control--overlaid {
   background: rgba(155, 27, 48, 0.85) !important;
+  z-index: 2;
 }
 
 .plyr__control--overlaid:hover {
   background: #9b1b30 !important;
+}
+
+/* In-player episode controls */
+.plyr-ep-btn {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px !important;
+}
+
+.plyr-ep-btn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+.plyr-ep-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.plyr-ep-select {
+  background: transparent;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 12px;
+  cursor: pointer;
+  margin: 0 4px;
+  height: 28px;
+  align-self: center;
+}
+
+.plyr-ep-select:hover {
+  border-color: #9b1b30;
+}
+
+.plyr-ep-select option {
+  background: #1a1a1a;
+  color: #e0e0e0;
 }
