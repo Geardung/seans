@@ -12,6 +12,11 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+          cpus: "1.0"
 
   backend:
     build: .
@@ -23,9 +28,19 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+          cpus: "0.75"
 
   adminer:
     image: adminer
+    deploy:
+      resources:
+        limits:
+          memory: 128m
+          cpus: "0.25"
 
   jackett:
     image: linuxserver/jackett:latest
@@ -35,6 +50,11 @@ services:
       TZ: Europe/Moscow
     volumes:
       - jackett_config:/config
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+          cpus: "0.5"
 
   caddy:
     image: caddy:2-alpine
@@ -50,6 +70,11 @@ services:
       - backend
       - adminer
       - jackett
+    deploy:
+      resources:
+        limits:
+          memory: 128m
+          cpus: "0.25"
 
 volumes:
   pg_data:
