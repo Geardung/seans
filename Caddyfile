@@ -1,4 +1,4 @@
-seans.tedeshi.ru {
+api.seans.tedeshi.ru {
     reverse_proxy backend:8000
 }
 
