@@ -5,3 +5,7 @@ seans.tedeshi.ru {
 adminer.seans.tedeshi.ru {
     reverse_proxy adminer:8080
 }
+
+jackett.seans.tedeshi.ru {
+    reverse_proxy jackett:9117
+}

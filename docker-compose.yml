@@ -27,6 +27,15 @@ services:
   adminer:
     image: adminer
 
+  jackett:
+    image: linuxserver/jackett:latest
+    environment:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: Europe/Moscow
+    volumes:
+      - jackett_config:/config
+
   caddy:
     image: caddy:2-alpine
     ports:
@@ -40,8 +49,10 @@ services:
     depends_on:
       - backend
       - adminer
+      - jackett
 
 volumes:
   pg_data:
+  jackett_config:
   caddy_data:
   caddy_config:
