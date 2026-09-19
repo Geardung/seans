@@ -5,8 +5,6 @@ services:
       POSTGRES_DB: seans
       POSTGRES_USER: seans
       POSTGRES_PASSWORD: ${DB_PASSWORD:-seans}
-    ports:
-      - "5432:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
     healthcheck:
@@ -17,10 +15,8 @@ services:
 
   backend:
     build: .
-    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 1"
     env_file: .env
-    ports:
-      - "8000:8000"
     volumes:
       - ./app:/code/app
       - ./alembic:/code/alembic
@@ -30,8 +26,22 @@ services:
 
   adminer:
     image: adminer
+
+  caddy:
+    image: caddy:2-alpine
     ports:
-      - "8081:8080"
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - backend
+      - adminer
 
 volumes:
   pg_data:
+  caddy_data:
+  caddy_config:

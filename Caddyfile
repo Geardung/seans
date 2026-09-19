@@ -1,0 +1,7 @@
+seans.tedeshi.ru {
+    reverse_proxy backend:8000
+}
+
+adminer.seans.tedeshi.ru {
+    reverse_proxy adminer:8080
+}
