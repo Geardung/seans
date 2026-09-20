@@ -48,6 +48,10 @@ services:
     volumes:
       - jackett_config:/config
 
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    restart: unless-stopped
+
   caddy:
     image: caddy:2-alpine
     restart: unless-stopped
