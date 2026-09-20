@@ -60,7 +60,7 @@
             "users": [
               {
                 "id": "79c5dc9f-44e1-4f88-9ec5-d1a483e6ab95",
-                "encryption": "mlkem768x25519plus",
+                "encryption": "none",
                 "flow": ""
               }
             ]
