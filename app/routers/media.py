@@ -2,7 +2,7 @@ import uuid
 from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -94,7 +94,7 @@ async def get_releases(
                 set_={
                     "seeders": rel.seeders,
                     "leechers": rel.leechers,
-                    "fetched_at": "now()",
+                    "fetched_at": func.now(),
                 },
             )
             .returning(TorrentRelease)

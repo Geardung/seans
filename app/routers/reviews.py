@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -46,7 +46,7 @@ async def upsert_review(
             set_={
                 "score": body.score,
                 "review": body.review,
-                "updated_at": "now()",
+                "updated_at": func.now(),
             },
         )
         .returning(Review)
