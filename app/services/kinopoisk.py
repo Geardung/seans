@@ -3,6 +3,7 @@ import uuid
 from typing import Any
 
 import httpx
+import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -130,7 +131,7 @@ async def upsert_media_items(
                     "rating_kp": item.get("rating_kp"),
                     "genres": item.get("genres", []),
                     "raw": item,
-                    "updated_at": "now()",
+                    "updated_at": sa.func.now(),
                 },
             )
             .returning(MediaItem)
