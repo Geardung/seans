@@ -50,6 +50,15 @@ MOCK_FIXTURES: list[dict[str, Any]] = [
 ]
 
 
+def _parse_rating(value: Any) -> float | None:
+    if value is None or value == "" or value == "null":
+        return None
+    try:
+        return float(value)
+    except (ValueError, TypeError):
+        return None
+
+
 async def search_mock(query: str) -> list[dict[str, Any]]:
     q = query.lower()
     return [
@@ -88,7 +97,7 @@ async def search_kinopoisk(query: str) -> list[dict[str, Any]]:
                 else None,
                 "poster_url": item.get("posterUrl"),
                 "overview": item.get("description", ""),
-                "rating_kp": float(item["rating"]) if item.get("rating") else None,
+                "rating_kp": _parse_rating(item.get("rating")),
                 "genres": [
                     g["genre"] for g in item.get("genres", []) if g.get("genre")
                 ],
