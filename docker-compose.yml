@@ -19,7 +19,7 @@ services:
     restart: unless-stopped
     command: >
       sh -c "
-        until pg_isready -h db -U seans -q; do
+        until python -c \"import socket; s=socket.socket(); s.connect(('db',5432)); s.close()\" 2>/dev/null; do
           echo 'waiting for db...'
           sleep 2
         done
