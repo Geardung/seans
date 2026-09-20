@@ -38,13 +38,6 @@ services:
     image: adminer
     restart: unless-stopped
 
-  xray:
-    image: teddysun/xray:latest
-    restart: unless-stopped
-    command: xray run -c /etc/xray/config.json
-    volumes:
-      - ./xray/config.json:/etc/xray/config.json:ro
-
   jackett:
     image: linuxserver/jackett:latest
     restart: unless-stopped
@@ -53,9 +46,7 @@ services:
       PGID: "1000"
       TZ: Europe/Moscow
     volumes:
-      - ./jackett:/config
-    depends_on:
-      - xray
+      - jackett_config:/config
 
   caddy:
     image: caddy:2-alpine
@@ -75,5 +66,6 @@ services:
 
 volumes:
   pg_data:
+  jackett_config:
   caddy_data:
   caddy_config:
