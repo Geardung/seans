@@ -49,7 +49,7 @@ services:
       - jackett_config:/config
 
   flaresolverr:
-    image: ghcr.io/flaresolverr/flaresolverr:latest
+    image: 21hsmw/flaresolverr:latest
     restart: unless-stopped
 
   caddy:
