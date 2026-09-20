@@ -1,6 +1,7 @@
 services:
   db:
     image: postgres:16-alpine
+    restart: unless-stopped
     environment:
       POSTGRES_DB: seans
       POSTGRES_USER: seans
@@ -12,15 +13,19 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
-    deploy:
-      resources:
-        limits:
-          memory: 1g
-          cpus: "1.0"
 
   backend:
     build: .
-    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 1"
+    restart: unless-stopped
+    command: >
+      sh -c "
+        until python -c \"import socket; s=socket.socket(); s.connect(('db',5432)); s.close()\" 2>/dev/null; do
+          echo 'waiting for db...'
+          sleep 2
+        done
+        alembic upgrade head
+        uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 1
+      "
     env_file: .env
     volumes:
       - ./app:/code/app
@@ -28,36 +33,24 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    deploy:
-      resources:
-        limits:
-          memory: 512m
-          cpus: "0.75"
 
   adminer:
     image: adminer
-    deploy:
-      resources:
-        limits:
-          memory: 128m
-          cpus: "0.25"
+    restart: unless-stopped
 
   jackett:
     image: linuxserver/jackett:latest
+    restart: unless-stopped
     environment:
       PUID: "1000"
       PGID: "1000"
       TZ: Europe/Moscow
     volumes:
       - jackett_config:/config
-    deploy:
-      resources:
-        limits:
-          memory: 512m
-          cpus: "0.5"
 
   caddy:
     image: caddy:2-alpine
+    restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
@@ -70,11 +63,6 @@ services:
       - backend
       - adminer
       - jackett
-    deploy:
-      resources:
-        limits:
-          memory: 128m
-          cpus: "0.25"
 
 volumes:
   pg_data:

@@ -1,3 +1,4 @@
+import os
 from logging.config import fileConfig
 
 from alembic import context
@@ -7,6 +8,12 @@ from app.db import Base
 from app.models import *  # noqa: F401, F403 — register all models
 
 config = context.config
+
+# Override sqlalchemy.url from environment (.env / docker-compose)
+db_url = os.environ.get("DATABASE_URL_SYNC") or os.environ.get("DATABASE_URL", "")
+if db_url:
+    db_url = db_url.replace("+asyncpg", "+psycopg2")
+    config.set_main_option("sqlalchemy.url", db_url)
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
