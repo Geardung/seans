@@ -44,8 +44,8 @@ services:
     command: xray run -c /etc/xray/config.json
     volumes:
       - ./xray/config.json:/etc/xray/config.json:ro
-    expose:
-      - "9117"
+    ports:
+      - "9117:9117"
 
   jackett:
     image: linuxserver/jackett:latest
