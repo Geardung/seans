@@ -7,5 +7,5 @@ adminer.seans.tedeshi.ru {
 }
 
 jackett.seans.tedeshi.ru {
-    reverse_proxy xray:9117
+    reverse_proxy jackett:9117
 }

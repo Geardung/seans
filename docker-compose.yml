@@ -44,19 +44,16 @@ services:
     command: xray run -c /etc/xray/config.json
     volumes:
       - ./xray/config.json:/etc/xray/config.json:ro
-    ports:
-      - "9117:9117"
 
   jackett:
     image: linuxserver/jackett:latest
     restart: unless-stopped
-    network_mode: "service:xray"
     environment:
       PUID: "1000"
       PGID: "1000"
       TZ: Europe/Moscow
     volumes:
-      - jackett_config:/config
+      - ./jackett:/config
     depends_on:
       - xray
 
@@ -74,10 +71,9 @@ services:
     depends_on:
       - backend
       - adminer
-      - xray
+      - jackett
 
 volumes:
   pg_data:
-  jackett_config:
   caddy_data:
   caddy_config:
