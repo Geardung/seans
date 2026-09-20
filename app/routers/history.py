@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -45,7 +45,7 @@ async def upsert_history(
                 "position_sec": body.position_sec,
                 "duration_sec": body.duration_sec,
                 "completed": completed,
-                "updated_at": "now()",
+                "updated_at": func.now(),
             },
         )
         .returning(WatchHistory)
