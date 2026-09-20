@@ -38,15 +38,27 @@ services:
     image: adminer
     restart: unless-stopped
 
+  xray:
+    image: teddysun/xray:latest
+    restart: unless-stopped
+    command: xray run -c /etc/xray/config.json
+    volumes:
+      - ./xray/config.json:/etc/xray/config.json:ro
+    expose:
+      - "9117"
+
   jackett:
     image: linuxserver/jackett:latest
     restart: unless-stopped
+    network_mode: "service:xray"
     environment:
       PUID: "1000"
       PGID: "1000"
       TZ: Europe/Moscow
     volumes:
       - jackett_config:/config
+    depends_on:
+      - xray
 
   caddy:
     image: caddy:2-alpine
@@ -62,7 +74,7 @@ services:
     depends_on:
       - backend
       - adminer
-      - jackett
+      - xray
 
 volumes:
   pg_data:
