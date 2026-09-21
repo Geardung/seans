@@ -8,7 +8,9 @@ import uuid
 import pytest
 from httpx import ASGITransport, AsyncClient
 
+from app.db import async_session
 from app.main import app
+from app.models.invite_key import InviteKey
 
 
 @pytest.fixture
@@ -18,14 +20,24 @@ async def client():
         yield c
 
 
+async def _create_invite_key() -> str:
+    key = uuid.uuid4().hex
+    async with async_session() as session:
+        session.add(InviteKey(key=key, created_by=uuid.uuid4()))
+        await session.commit()
+    return key
+
+
 async def register_and_login(client: AsyncClient) -> tuple[str, str]:
     """Register a user and return (token, user_id)."""
+    invite = await _create_invite_key()
     resp = await client.post(
         "/api/auth/register",
         json={
             "email": f"worker-test-{uuid.uuid4().hex[:8]}@test.local",
             "password": "test123",
             "display_name": "Worker Tester",
+            "invite_key": invite,
         },
     )
     assert resp.status_code == 201

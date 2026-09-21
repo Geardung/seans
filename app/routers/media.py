@@ -9,16 +9,24 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db import get_db
 from app.models.media_item import MediaItem
 from app.models.torrent_release import TorrentRelease
+from app.models.user import User
 from app.schemas.media import MediaDetail, MediaSearchResult
 from app.schemas.releases import TorrentReleaseResponse
+from app.services.auth import get_current_user
 from app.services.indexer import get_indexer
 from app.services.kinopoisk import search_kinopoisk, upsert_media_items
+from app.services.rate_limit import rate_limit
 
 router = APIRouter(tags=["media"])
 
 
 @router.get("/api/search", response_model=list[MediaSearchResult])
-async def search(q: str = Query(..., min_length=1), db: AsyncSession = Depends(get_db)):
+async def search(
+    q: str = Query(..., min_length=1),
+    db: AsyncSession = Depends(get_db),
+    _user: User = Depends(get_current_user),
+    _rl: None = Depends(rate_limit(max_requests=2, window_sec=1.0)),
+):
     items = await search_kinopoisk(q)
     if not items:
         return []
@@ -27,7 +35,11 @@ async def search(q: str = Query(..., min_length=1), db: AsyncSession = Depends(g
 
 
 @router.get("/api/media/{media_item_id}", response_model=MediaDetail)
-async def get_media(media_item_id: str, db: AsyncSession = Depends(get_db)):
+async def get_media(
+    media_item_id: str,
+    db: AsyncSession = Depends(get_db),
+    _user: User = Depends(get_current_user),
+):
     result = await db.execute(select(MediaItem).where(MediaItem.id == media_item_id))
     item = result.scalar_one_or_none()
     if item is None:
@@ -44,6 +56,7 @@ async def get_releases(
     media_item_id: str,
     refresh: bool = False,
     db: AsyncSession = Depends(get_db),
+    _user: User = Depends(get_current_user),
 ):
     # Verify media item exists
     result = await db.execute(select(MediaItem).where(MediaItem.id == media_item_id))

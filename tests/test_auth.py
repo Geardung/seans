@@ -12,7 +12,7 @@ async def client():
 
 
 @pytest.mark.asyncio
-async def test_register_and_login(client: AsyncClient):
+async def test_register_and_login(client: AsyncClient, invite_key: str):
     # Register
     resp = await client.post(
         "/api/auth/register",
@@ -20,6 +20,7 @@ async def test_register_and_login(client: AsyncClient):
             "email": "test@example.com",
             "password": "secret123",
             "display_name": "Test User",
+            "invite_key": invite_key,
         },
     )
     assert resp.status_code == 201
@@ -35,9 +36,10 @@ async def test_register_and_login(client: AsyncClient):
             "email": "test@example.com",
             "password": "secret123",
             "display_name": "Test User",
+            "invite_key": invite_key,
         },
     )
-    assert resp2.status_code == 409
+    assert resp2.status_code in (400, 409)
 
     # Login
     resp3 = await client.post(

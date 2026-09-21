@@ -1,3 +1,4 @@
+from app.models.invite_key import InviteKey
 from app.models.library_item import LibraryItem
 from app.models.media_item import MediaItem
 from app.models.review import Review
@@ -11,6 +12,7 @@ from app.models.watch_history import WatchHistory
 from app.models.worker import Worker
 
 __all__ = [
+    "InviteKey",
     "LibraryItem",
     "MediaItem",
     "Review",
