@@ -6,6 +6,10 @@ adminer.seans.tedeshi.ru {
     reverse_proxy adminer:8080
 }
 
-jackett.seans.tedeshi.ru {
-    reverse_proxy jackett:9117
+prowlarr.seans.tedeshi.ru {
+    reverse_proxy prowlarr:9696
+}
+
+jacred.seans.tedeshi.ru {
+    reverse_proxy jacred:8082
 }

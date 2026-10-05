@@ -13,7 +13,7 @@ from app.models.user import User
 from app.schemas.media import MediaDetail, MediaSearchResult
 from app.schemas.releases import TorrentReleaseResponse
 from app.services.auth import get_current_user
-from app.services.indexer import get_indexer
+from app.services.indexer import search_releases
 from app.services.kinopoisk import search_kinopoisk, upsert_media_items
 from app.services.rate_limit import rate_limit
 
@@ -79,9 +79,8 @@ async def get_releases(
             return [TorrentReleaseResponse.model_validate(r) for r in rows]
 
     # Fetch from indexer
-    indexer = get_indexer()
     query = f"{media_item.title} {media_item.year or ''}".strip()
-    releases = await indexer.search(query, str(media_item_id))
+    releases = await search_releases(query, str(media_item_id))
 
     # Upsert into DB
     db_releases = []

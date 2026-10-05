@@ -61,7 +61,7 @@ Full protocol in user's master spec (§ WebSocket).
 - Quota: used (uploaded task_files) + reserved (active tasks) vs user quota
 - Task queue: claim via FOR UPDATE SKIP LOCKED, lease with expiry
 - Kinopoisk: KP_API_TOKEN provider or mock fixtures
-- Indexer: mock (deterministic fixtures) or Jackett (Torznab XML)
+- Indexer: JacRed (Torznab via Prowlarr)
 - Quality parser: regex extraction of resolution/source/voiceover from titles
 - Rooms: in-memory dict, broadcast, host promotion
 - Reaper: asyncio background task, 60s cycle, reclaims expired leases
@@ -80,7 +80,7 @@ adminer. Single uvicorn worker (in-memory WS state).
 | M3 | Auth: register/login/me, bcrypt, JWT | test_auth.py green |
 | M4 | S3 service + presign + dev check endpoint | s3-check works against real bucket |
 | M5 | Kinopoisk provider + cache + /api/search, /api/media/{id} | Search returns results, cached on repeat |
-| M6 | Indexer (mock+jackett) + quality.py + /api/media/{id}/releases | Quality parser tests; mock releases work |
+| M6 | Indexer (JacRed) + quality.py + /api/media/{id}/releases | Quality parser tests; search returns results |
 | M7 | Tasks + worker protocol + reaper + quota + library + files/url | test_tasks_flow.py full cycle including lease expiry |
 | M8 | Rooms WS + history + reviews | test_rooms_ws.py two clients, host commands, promotion |
 
@@ -127,7 +127,7 @@ adminer. Single uvicorn worker (in-memory WS state).
 
 ### M6 — Indexer + Quality
 - [x] T6.1: Write quality.py parser (resolution, source, voiceover) — acceptance: unit tests pass (covers: S2 services)
-- [x] T6.2: Write IndexerProvider (mock + Jackett) — acceptance: mock returns deterministic fixtures (covers: S2 services)
+- [x] T6.2: Write IndexerProvider (JacRed) — acceptance: search returns releases from JacRed (covers: S2 services)
 - [x] T6.3: Write /api/media/{id}/releases endpoint — acceptance: returns releases, respects 6h cache (covers: S2 API)
 
 ### M7 — Tasks + Worker + Core

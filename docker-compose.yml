@@ -38,19 +38,26 @@ services:
     image: adminer
     restart: unless-stopped
 
-  jackett:
-    image: linuxserver/jackett:latest
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
     restart: unless-stopped
     environment:
-      PUID: "1000"
-      PGID: "1000"
-      TZ: Europe/Moscow
+      - PUID=1000
+      - PGID=1000
     volumes:
-      - jackett_config:/config
+      - ./prowlarr-config:/config
+    expose: ["9696"]
+    logging: &logging
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
 
-  flaresolverr:
-    image: ghcr.io/germondai/trawl:latest
+  jacred:
+    image: ghcr.io/jacred-ru/jacred:latest
     restart: unless-stopped
+    volumes:
+      - ./jacred-config:/app/config
+    expose: ["8082"]
+    logging: *logging
 
   caddy:
     image: caddy:2-alpine
@@ -66,10 +73,10 @@ services:
     depends_on:
       - backend
       - adminer
-      - jackett
+      - prowlarr
+      - jacred
 
 volumes:
   pg_data:
-  jackett_config:
   caddy_data:
   caddy_config:
