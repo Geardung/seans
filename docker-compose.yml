@@ -17,15 +17,8 @@ services:
   backend:
     build: .
     restart: unless-stopped
-    command: >
-      sh -c "
-        until python -c \"import socket; s=socket.socket(); s.connect(('db',5432)); s.close()\" 2>/dev/null; do
-          echo 'waiting for db...'
-          sleep 2
-        done
-        alembic upgrade head
-        uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 1
-      "
+    # migrations run in image entrypoint (scripts/docker-entrypoint.sh)
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 1
     env_file: .env
     volumes:
       - ./app:/code/app
@@ -38,19 +31,6 @@ services:
     image: adminer
     restart: unless-stopped
 
-  prowlarr:
-    image: lscr.io/linuxserver/prowlarr:latest
-    restart: unless-stopped
-    environment:
-      - PUID=1000
-      - PGID=1000
-    volumes:
-      - ./prowlarr-config:/config
-    expose: ["9696"]
-    logging: &logging
-      driver: json-file
-      options: { max-size: "10m", max-file: "3" }
-
   jacred:
     image: ghcr.io/jacred-fdb/jacred:latest
     restart: unless-stopped
@@ -59,7 +39,9 @@ services:
       - ./jacred-config:/app/config
       - jacred_data:/app/Data
     expose: ["9117"]
-    logging: *logging
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
 
   caddy:
     image: caddy:2-alpine
@@ -75,7 +57,6 @@ services:
     depends_on:
       - backend
       - adminer
-      - prowlarr
       - jacred
 
 volumes:
