@@ -185,12 +185,20 @@ async def test_upsert_resolves_tmdb_id():
     row.scalar_one.return_value = fake_item
     db = MagicMock()
     db.execute = AsyncMock(return_value=row)
-    db.commit = AsyncMock()
+    events: list[str] = []
 
+    async def fake_commit() -> None:
+        events.append("commit")
+
+    async def fake_resolve(**_kwargs: Any) -> int:
+        events.append("resolve")
+        return 157336
+
+    db.commit = AsyncMock(side_effect=fake_commit)
     with patch(
         "app.services.kinopoisk.resolve_tmdb_id", new_callable=AsyncMock
     ) as resolve_mock:
-        resolve_mock.return_value = 157336
+        resolve_mock.side_effect = fake_resolve
         result = await upsert_media_items(db, [dict(MOCK_FIXTURES[1])])
 
     assert len(result) == 1
@@ -200,7 +208,8 @@ async def test_upsert_resolves_tmdb_id():
     assert kwargs["title"] == "Интерстеллар"
     assert kwargs["original_title"] == "Interstellar"
     assert kwargs["kp_type"] == "movie"
-    db.commit.assert_awaited()
+    # Design: upsert commit first, then resolve, then commit tmdb_id.
+    assert events == ["commit", "resolve", "commit"]
 
 
 @pytest.mark.asyncio
@@ -216,18 +225,24 @@ async def test_upsert_skips_tmdb_when_no_token():
     row.scalar_one.return_value = fake_item
     db = MagicMock()
     db.execute = AsyncMock(return_value=row)
-    db.commit = AsyncMock()
+    events: list[str] = []
 
+    async def fake_commit() -> None:
+        events.append("commit")
+
+    db.commit = AsyncMock(side_effect=fake_commit)
+
+    # Real resolve path with empty token: no httpx, tmdb_id stays None.
     with (
         patch.object(tmdb_mod, "settings", _settings("")),
-        patch(
-            "app.services.kinopoisk.resolve_tmdb_id", new_callable=AsyncMock
-        ) as resolve_mock,
+        patch.object(tmdb_mod, "httpx") as httpx_mod,
     ):
-        resolve_mock.return_value = None
         result = await upsert_media_items(db, [dict(MOCK_FIXTURES[1])])
 
     assert result[0].tmdb_id is None
+    httpx_mod.AsyncClient.assert_not_called()
+    # Upsert is still committed; resolve did not find an id, so no second commit.
+    assert events == ["commit"]
 
 
 @pytest.mark.asyncio
@@ -252,6 +267,8 @@ async def test_upsert_skips_resolve_when_fixture_has_tmdb_id():
 
     assert result[0].tmdb_id == 157336
     resolve_mock.assert_not_awaited()
+    # Only the upsert commit; resolve skipped.
+    assert db.commit.await_count == 1
 
 
 def test_mock_fixtures_have_real_tmdb_ids():

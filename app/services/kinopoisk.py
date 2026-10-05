@@ -142,6 +142,8 @@ async def upsert_media_items(
         )
         row = await db.execute(stmt)
         media_item = row.scalar_one()
+        # Commit upsert before external TMDB call so resolve is outside the upsert transaction.
+        await db.commit()
         if media_item.tmdb_id is None:
             tmdb_id = await resolve_tmdb_id(
                 title=media_item.title,
@@ -151,6 +153,6 @@ async def upsert_media_items(
             )
             if tmdb_id is not None:
                 media_item.tmdb_id = tmdb_id
+                await db.commit()
         result.append(media_item)
-    await db.commit()
     return result
