@@ -55,6 +55,7 @@ async def get_library(
                     "poster_url": media_item.poster_url,
                     "kp_type": media_item.kp_type,
                     "year": media_item.year,
+                    "tmdb_id": media_item.tmdb_id,
                 },
                 "files": [
                     {

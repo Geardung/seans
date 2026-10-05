@@ -24,6 +24,7 @@ class MediaItem(Base):
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
     kp_id: Mapped[int | None] = mapped_column(BigInteger, unique=True)
+    tmdb_id: Mapped[int | None] = mapped_column(Integer, nullable=True, index=True)
     kp_type: Mapped[str] = mapped_column(Text, nullable=False)
     title: Mapped[str] = mapped_column(Text, nullable=False)
     original_title: Mapped[str | None] = mapped_column(Text)

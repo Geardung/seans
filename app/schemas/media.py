@@ -8,6 +8,7 @@ from pydantic import BaseModel
 class MediaSearchResult(BaseModel):
     id: uuid.UUID
     kp_id: int | None
+    tmdb_id: int | None = None
     title: str
     year: int | None
     poster_url: str | None
@@ -20,6 +21,7 @@ class MediaSearchResult(BaseModel):
 class MediaDetail(BaseModel):
     id: uuid.UUID
     kp_id: int | None
+    tmdb_id: int | None = None
     kp_type: str
     title: str
     original_title: str | None

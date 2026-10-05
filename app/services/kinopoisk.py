@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.models.media_item import MediaItem
+from app.services.tmdb import resolve_tmdb_id
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +26,7 @@ MOCK_FIXTURES: list[dict[str, Any]] = [
         "overview": "Студент Канеки попадает в мир гулей.",
         "rating_kp": 6.4,
         "genres": ["ужасы", "боевик"],
+        "tmdb_id": 378527,
     },
     {
         "kp_id": 258687,
@@ -36,6 +38,7 @@ MOCK_FIXTURES: list[dict[str, Any]] = [
         "overview": "Космическая экспедиция через червоточину.",
         "rating_kp": 8.6,
         "genres": ["фантастика", "драма"],
+        "tmdb_id": 157336,
     },
     {
         "kp_id": 464963,
@@ -47,6 +50,7 @@ MOCK_FIXTURES: list[dict[str, Any]] = [
         "overview": "Благородные дома Вестероса борются за трон.",
         "rating_kp": 8.7,
         "genres": ["фэнтези", "драма"],
+        "tmdb_id": 1399,
     },
 ]
 
@@ -137,6 +141,16 @@ async def upsert_media_items(
             .returning(MediaItem)
         )
         row = await db.execute(stmt)
-        result.append(row.scalar_one())
+        media_item = row.scalar_one()
+        if media_item.tmdb_id is None:
+            tmdb_id = await resolve_tmdb_id(
+                title=media_item.title,
+                original_title=media_item.original_title,
+                year=media_item.year,
+                kp_type=media_item.kp_type,
+            )
+            if tmdb_id is not None:
+                media_item.tmdb_id = tmdb_id
+        result.append(media_item)
     await db.commit()
     return result
