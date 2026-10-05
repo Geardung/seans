@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     S3_REGION: str = "us-east-1"
     KP_API_TOKEN: str = ""
     TMDB_API_TOKEN: str = ""  # v3 API-ключ с themoviedb.org
-    JACRED_URL: str = "http://localhost:8082"
+    JACRED_URL: str = "http://localhost:9117"
     JACRED_API_KEY: str = ""
     PROWLARR_URL: str = "http://localhost:9696"
     PROWLARR_API_KEY: str = ""

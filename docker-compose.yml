@@ -52,11 +52,13 @@ services:
       options: { max-size: "10m", max-file: "3" }
 
   jacred:
-    image: ghcr.io/jacred-ru/jacred:latest
+    image: ghcr.io/jacred-fdb/jacred:latest
     restart: unless-stopped
+    user: "1000:1000"
     volumes:
       - ./jacred-config:/app/config
-    expose: ["8082"]
+      - jacred_data:/app/Data
+    expose: ["9117"]
     logging: *logging
 
   caddy:
@@ -80,3 +82,4 @@ volumes:
   pg_data:
   caddy_data:
   caddy_config:
+  jacred_data:

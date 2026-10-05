@@ -11,5 +11,5 @@ prowlarr.seans.tedeshi.ru {
 }
 
 jacred.seans.tedeshi.ru {
-    reverse_proxy jacred:8082
+    reverse_proxy jacred:9117
 }
