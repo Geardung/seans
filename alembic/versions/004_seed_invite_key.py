@@ -25,12 +25,10 @@ def upgrade() -> None:
         nullable=True,
     )
 
+    key = uuid.uuid4().hex
     op.execute(
-        sa.text(
-            "INSERT INTO invite_keys (id, key, created_by) "
-            "VALUES (:id, :key, NULL)"
-        ),
-        params={"id": uuid.uuid4(), "key": uuid.uuid4().hex},
+        f"INSERT INTO invite_keys (id, key, created_by) "
+        f"VALUES ('{uuid.uuid4()}', '{key}', NULL)"
     )
 
 
