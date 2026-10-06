@@ -43,6 +43,10 @@ services:
       driver: json-file
       options: { max-size: "10m", max-file: "3" }
 
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+
   caddy:
     image: caddy:2-alpine
     restart: unless-stopped
@@ -56,6 +60,7 @@ services:
       - caddy_config:/config
     depends_on:
       - backend
+      - frontend
       - adminer
       - jacred
 

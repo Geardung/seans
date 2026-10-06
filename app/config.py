@@ -28,8 +28,6 @@ class Settings(BaseSettings):
     TMDB_API_TOKEN: str = ""  # v3 API-ключ с themoviedb.org
     JACRED_URL: str = "http://localhost:9117"
     JACRED_API_KEY: str = ""
-    PROWLARR_URL: str = "http://localhost:9696"
-    PROWLARR_API_KEY: str = ""
     WORKER_REG_SECRET: str = "change-me"
     DEFAULT_QUOTA_BYTES: int = 10737418240
     LEASE_MINUTES: int = 10

@@ -2,12 +2,12 @@ api.seans.tedeshi.ru {
     reverse_proxy backend:8000
 }
 
-adminer.seans.tedeshi.ru {
-    reverse_proxy adminer:8080
+seans.tedeshi.ru {
+    reverse_proxy frontend:80
 }
 
-prowlarr.seans.tedeshi.ru {
-    reverse_proxy prowlarr:9696
+adminer.seans.tedeshi.ru {
+    reverse_proxy adminer:8080
 }
 
 jacred.seans.tedeshi.ru {

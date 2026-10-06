@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seans — Вход</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f0f13;
+    --surface: #1a1a24;
+    --border: #2a2a3a;
+    --text: #e8e8f0;
+    --text-muted: #8888a0;
+    --accent: #6c5ce7;
+    --accent-hover: #7c6ef7;
+    --error: #e74c3c;
+    --success: #2ecc71;
+    --radius: 10px;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px 36px;
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .logo {
+    text-align: center;
+    margin-bottom: 32px;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--accent);
+  }
+
+  .tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tab {
+    flex: 1;
+    padding: 10px 0;
+    text-align: center;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-muted);
+    border-bottom: 2px solid transparent;
+    transition: color .2s, border-color .2s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+
+  .tab.active {
+    color: var(--text);
+    border-bottom-color: var(--accent);
+  }
+
+  .form { display: none; flex-direction: column; gap: 16px; }
+  .form.active { display: flex; }
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  input {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    color: var(--text);
+    font-size: 15px;
+    outline: none;
+    transition: border-color .2s;
+  }
+
+  input:focus { border-color: var(--accent); }
+  input.error { border-color: var(--error); }
+
+  .field-error {
+    font-size: 12px;
+    color: var(--error);
+    min-height: 16px;
+  }
+
+  button[type="submit"] {
+    margin-top: 4px;
+    padding: 13px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s;
+  }
+
+  button[type="submit"]:hover { background: var(--accent-hover); }
+  button[type="submit"]:disabled { opacity: .5; cursor: not-allowed; }
+
+  .message {
+    text-align: center;
+    font-size: 13px;
+    min-height: 20px;
+    margin-top: 4px;
+  }
+
+  .message.error { color: var(--error); }
+  .message.success { color: var(--success); }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">SEANS</div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="login">Вход</button>
+    <button class="tab" data-tab="register">Регистрация</button>
+  </div>
+
+  <!-- Login form -->
+  <form id="login-form" class="form active" novalidate>
+    <label>
+      Email
+      <input type="email" name="email" autocomplete="email" required>
+    </label>
+    <label>
+      Пароль
+      <input type="password" name="password" autocomplete="current-password" required>
+    </label>
+    <div class="field-error" id="login-field-error"></div>
+    <button type="submit">Войти</button>
+    <div class="message" id="login-message"></div>
+  </form>
+
+  <!-- Register form -->
+  <form id="register-form" class="form" novalidate>
+    <label>
+      Email
+      <input type="email" name="email" autocomplete="email" required>
+    </label>
+    <label>
+      Имя
+      <input type="text" name="display_name" autocomplete="name" required>
+    </label>
+    <label>
+      Пароль
+      <input type="password" name="password" autocomplete="new-password" minlength="6" required>
+    </label>
+    <label>
+      Invite-ключ
+      <input type="text" name="invite_key" placeholder="xxxxxxxxxxxxxxxx" required>
+    </label>
+    <div class="field-error" id="register-field-error"></div>
+    <button type="submit">Создать аккаунт</button>
+    <div class="message" id="register-message"></div>
+  </form>
+</div>
+
+<script>
+(function() {
+  const params = new URLSearchParams(location.search);
+  const redirectUri = params.get('redirect_uri');
+  const state = params.get('state') || '';
+
+  if (!redirectUri) {
+    document.querySelector('.card').innerHTML =
+      '<div class="logo">SEANS</div>' +
+      '<div class="message error">Отсутствует redirect_uri</div>';
+    return;
+  }
+
+  // Tab switching
+  const tabs = document.querySelectorAll('.tab');
+  const forms = document.querySelectorAll('.form');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      forms.forEach(f => f.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.tab + '-form').classList.add('active');
+      clearMessages();
+    });
+  });
+
+  function clearMessages() {
+    document.querySelectorAll('.message').forEach(m => { m.textContent = ''; m.className = 'message'; });
+    document.querySelectorAll('.field-error').forEach(e => e.textContent = '');
+    document.querySelectorAll('input').forEach(i => i.classList.remove('error'));
+  }
+
+  function showError(formPrefix, msg) {
+    const el = document.getElementById(formPrefix + '-message');
+    el.textContent = msg;
+    el.className = 'message error';
+  }
+
+  function showFieldError(formPrefix, field, msg) {
+    const el = document.getElementById(formPrefix + '-field-error');
+    el.textContent = msg;
+    const input = document.getElementById(formPrefix + '-form').querySelector(`[name="${field}"]`);
+    if (input) input.classList.add('error');
+  }
+
+  function finish(accessToken) {
+    const url = new URL(redirectUri);
+    url.searchParams.set('access_token', accessToken);
+    url.searchParams.set('state', state);
+    url.searchParams.set('token_type', 'bearer');
+    location.href = url.toString();
+  }
+
+  const API_BASE = location.hostname === 'localhost'
+    ? 'http://localhost:8000/api/auth'
+    : 'https://api.seans.tedeshi.ru/api/auth';
+
+  async function apiCall(path, body) {
+    const resp = await fetch(API_BASE + path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const data = await resp.json();
+    if (!resp.ok) {
+      const detail = data.detail || 'Ошибка сервера';
+      throw { status: resp.status, detail };
+    }
+    return data;
+  }
+
+  // Login
+  document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearMessages();
+    const form = e.target;
+    const email = form.email.value.trim();
+    const password = form.password.value;
+    if (!email || !password) { showError('login', 'Заполните все поля'); return; }
+
+    const btn = form.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    try {
+      const data = await apiCall('/login', { email, password });
+      finish(data.access_token);
+    } catch (err) {
+      if (err.status === 401) showError('login', 'Неверный email или пароль');
+      else if (err.status === 422) showFieldError('login', 'email', 'Некорректный формат email');
+      else showError('login', err.detail || 'Ошибка');
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  // Register
+  document.getElementById('register-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearMessages();
+    const form = e.target;
+    const email = form.email.value.trim();
+    const display_name = form.display_name.value.trim();
+    const password = form.password.value;
+    const invite_key = form.invite_key.value.trim();
+    if (!email || !display_name || !password || !invite_key) {
+      showError('register', 'Заполните все поля');
+      return;
+    }
+    if (password.length < 6) {
+      showFieldError('register', 'password', 'Минимум 6 символов');
+      return;
+    }
+
+    const btn = form.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    try {
+      const data = await apiCall('/register', { email, password, display_name, invite_key });
+      finish(data.access_token);
+    } catch (err) {
+      if (err.status === 409) showError('register', 'Email уже зарегистрирован');
+      else if (err.status === 400) showFieldError('register', 'invite_key', 'Неверный или использованный ключ');
+      else showError('register', err.detail || 'Ошибка');
+    } finally {
+      btn.disabled = false;
+    }
+  });
+})();
+</script>
+</body>
+</html>
