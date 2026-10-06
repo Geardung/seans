@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
@@ -30,9 +32,7 @@ async def upsert_history(
     stmt = (
         pg_insert(WatchHistory)
         .values(
-            id=WatchHistory.id.default.arg()
-            if hasattr(WatchHistory.id.default, "arg")
-            else None,
+            id=uuid.uuid4(),
             user_id=user.id,
             task_file_id=body.task_file_id,
             position_sec=body.position_sec,
