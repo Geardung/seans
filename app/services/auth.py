@@ -1,10 +1,10 @@
 import uuid
 from datetime import UTC, datetime, timedelta
 
+import bcrypt as _bcrypt
 import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from passlib.hash import bcrypt
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -51,8 +51,8 @@ async def get_current_user(
 
 
 def hash_password(password: str) -> str:
-    return bcrypt.hash(password)
+    return _bcrypt.hashpw(password.encode(), _bcrypt.gensalt()).decode()
 
 
 def verify_password(password: str, hashed: str) -> bool:
-    return bcrypt.verify(password, hashed)
+    return _bcrypt.checkpw(password.encode(), hashed.encode())
