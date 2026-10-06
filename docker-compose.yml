@@ -20,9 +20,8 @@ services:
     # migrations run in image entrypoint (scripts/docker-entrypoint.sh)
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 1
     env_file: .env
-    dns:
-      - 8.8.8.8
-      - 1.1.1.1
+    extra_hosts:
+      - "api.themoviedb.org:18.165.140.98"
     volumes:
       - ./app:/code/app
       - ./alembic:/code/alembic
