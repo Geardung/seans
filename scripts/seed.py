@@ -55,19 +55,25 @@ async def seed():
         await conn.run_sync(Base.metadata.create_all)
 
     async with async_session() as session:
-        # Demo user
+        # Demo user (admin)
         existing = await session.execute(select(User).where(User.email == DEMO_EMAIL))
-        if not existing.scalar_one_or_none():
+        demo = existing.scalar_one_or_none()
+        if demo is None:
             session.add(
                 User(
                     email=DEMO_EMAIL,
                     password_hash=bcrypt.hash(DEMO_PASSWORD),
                     display_name="Demo User",
+                    is_admin=True,
                 )
             )
-            print(f"Created demo user: {DEMO_EMAIL} / {DEMO_PASSWORD}")
+            print(f"Created demo admin: {DEMO_EMAIL} / {DEMO_PASSWORD}")
         else:
-            print(f"Demo user already exists: {DEMO_EMAIL}")
+            if not demo.is_admin:
+                demo.is_admin = True
+                print(f"Promoted demo user to admin: {DEMO_EMAIL}")
+            else:
+                print(f"Demo user already exists: {DEMO_EMAIL}")
 
         # Media items (upsert by kp_id)
         for item in MEDIA_FIXTURES:

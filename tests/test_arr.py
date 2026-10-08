@@ -127,9 +127,7 @@ def _json_response(payload, status_code=200):
 @pytest.mark.asyncio
 async def test_get_series_cached():
     with (
-        patch.object(
-            arr_mod, "settings", _settings("http://sonarr:8989", "key")
-        ),
+        patch.object(arr_mod, "settings", _settings("http://sonarr:8989", "key")),
         patch.object(arr_mod, "httpx") as httpx_mod,
     ):
         client = AsyncMock()
@@ -150,9 +148,7 @@ async def test_get_series_cached():
 @pytest.mark.asyncio
 async def test_get_series_detail_not_found():
     with (
-        patch.object(
-            arr_mod, "settings", _settings("http://sonarr:8989", "key")
-        ),
+        patch.object(arr_mod, "settings", _settings("http://sonarr:8989", "key")),
         patch.object(arr_mod, "httpx") as httpx_mod,
     ):
         client = AsyncMock()
@@ -169,9 +165,7 @@ async def test_get_series_detail_not_found():
 @pytest.mark.asyncio
 async def test_get_episodes_cached_longer_key():
     with (
-        patch.object(
-            arr_mod, "settings", _settings("http://sonarr:8989", "key")
-        ),
+        patch.object(arr_mod, "settings", _settings("http://sonarr:8989", "key")),
         patch.object(arr_mod, "httpx") as httpx_mod,
     ):
         client = AsyncMock()

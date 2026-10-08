@@ -11,6 +11,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import settings
 from app.db import get_db
 from app.models.user import User
+from app.schemas.auth import UserResponse
+from app.services.quota import get_effective_quota_bytes
 
 security = HTTPBearer()
 
@@ -48,6 +50,27 @@ async def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found"
         )
     return user
+
+
+def require_admin(user: User = Depends(get_current_user)) -> User:
+    if not user.is_admin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin only")
+    return user
+
+
+def user_to_response(user: User) -> UserResponse:
+    """UserResponse with the quota limit that is in effect right now."""
+    return UserResponse(
+        id=user.id,
+        email=user.email,
+        display_name=user.display_name,
+        is_admin=user.is_admin,
+        can_invite=user.can_invite,
+        plan=user.plan,
+        plan_expires_at=user.plan_expires_at,
+        quota_bytes=get_effective_quota_bytes(user),
+        created_at=user.created_at,
+    )
 
 
 def hash_password(password: str) -> str:

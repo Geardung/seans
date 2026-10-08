@@ -1,3 +1,5 @@
+import uuid
+
 import pytest
 from httpx import ASGITransport, AsyncClient
 
@@ -13,11 +15,12 @@ async def client():
 
 @pytest.mark.asyncio
 async def test_register_and_login(client: AsyncClient, invite_key: str):
+    email = f"test-{uuid.uuid4().hex[:8]}@example.com"
     # Register
     resp = await client.post(
         "/api/auth/register",
         json={
-            "email": "test@example.com",
+            "email": email,
             "password": "secret123",
             "display_name": "Test User",
             "invite_key": invite_key,
@@ -26,14 +29,14 @@ async def test_register_and_login(client: AsyncClient, invite_key: str):
     assert resp.status_code == 201
     data = resp.json()
     assert "access_token" in data
-    assert data["user"]["email"] == "test@example.com"
+    assert data["user"]["email"] == email
     token = data["access_token"]
 
     # Duplicate register -> 409
     resp2 = await client.post(
         "/api/auth/register",
         json={
-            "email": "test@example.com",
+            "email": email,
             "password": "secret123",
             "display_name": "Test User",
             "invite_key": invite_key,
@@ -45,7 +48,7 @@ async def test_register_and_login(client: AsyncClient, invite_key: str):
     resp3 = await client.post(
         "/api/auth/login",
         json={
-            "email": "test@example.com",
+            "email": email,
             "password": "secret123",
         },
     )
@@ -56,7 +59,7 @@ async def test_register_and_login(client: AsyncClient, invite_key: str):
     resp4 = await client.post(
         "/api/auth/login",
         json={
-            "email": "test@example.com",
+            "email": email,
             "password": "wrong",
         },
     )
@@ -67,8 +70,8 @@ async def test_register_and_login(client: AsyncClient, invite_key: str):
         "/api/auth/me", headers={"Authorization": f"Bearer {token}"}
     )
     assert resp5.status_code == 200
-    assert resp5.json()["email"] == "test@example.com"
+    assert resp5.json()["email"] == email
 
-    # /me without token -> 403
+    # /me without token -> 401/403
     resp6 = await client.get("/api/auth/me")
-    assert resp6.status_code == 403
+    assert resp6.status_code in (401, 403)

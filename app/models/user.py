@@ -17,9 +17,22 @@ class User(Base):
     email: Mapped[str] = mapped_column(CITEXT, unique=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(Text, nullable=False)
     display_name: Mapped[str] = mapped_column(Text, nullable=False)
+    is_admin: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default="false", default=False
+    )
     can_invite: Mapped[bool] = mapped_column(
         Boolean, nullable=False, server_default="false"
     )
+    # Subscription plan code (see app.services.plans.PLANS).
+    plan: Mapped[str] = mapped_column(
+        Text, nullable=False, server_default="free", default="free"
+    )
+    # None = plan has no expiry (permanent). When in the past, plan falls back to free.
+    plan_expires_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    # Stored quota limit. When a plan is assigned this is set from the plan;
+    # admin may also set a custom value. Effective limit is resolved in quota service.
     quota_bytes: Mapped[int] = mapped_column(
         BigInteger, nullable=False, default=10737418240
     )

@@ -23,7 +23,7 @@ async def client():
 async def _create_invite_key() -> str:
     key = uuid.uuid4().hex
     async with async_session() as session:
-        session.add(InviteKey(key=key, created_by=uuid.uuid4()))
+        session.add(InviteKey(key=key, created_by=None))
         await session.commit()
     return key
 

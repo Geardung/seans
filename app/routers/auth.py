@@ -19,6 +19,7 @@ from app.services.auth import (
     create_access_token,
     get_current_user,
     hash_password,
+    user_to_response,
     verify_password,
 )
 
@@ -36,12 +37,15 @@ async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
         )
 
     result = await db.execute(
-        select(InviteKey).where(InviteKey.key == body.invite_key, InviteKey.used_by.is_(None))
+        select(InviteKey).where(
+            InviteKey.key == body.invite_key, InviteKey.used_by.is_(None)
+        )
     )
     invite = result.scalar_one_or_none()
     if invite is None:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or already used invite key"
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or already used invite key",
         )
 
     user = User(
@@ -59,7 +63,7 @@ async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
     await db.refresh(user)
 
     token = create_access_token(user.id)
-    return TokenResponse(access_token=token, user=UserResponse.model_validate(user))
+    return TokenResponse(access_token=token, user=user_to_response(user))
 
 
 @router.post("/login", response_model=TokenResponse)
@@ -72,12 +76,12 @@ async def login(body: LoginRequest, db: AsyncSession = Depends(get_db)):
         )
 
     token = create_access_token(user.id)
-    return TokenResponse(access_token=token, user=UserResponse.model_validate(user))
+    return TokenResponse(access_token=token, user=user_to_response(user))
 
 
 @router.get("/me", response_model=UserResponse)
 async def me(user: User = Depends(get_current_user)):
-    return UserResponse.model_validate(user)
+    return user_to_response(user)
 
 
 @router.post(
@@ -91,7 +95,8 @@ async def create_invite_key(
 ):
     if not user.can_invite:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="You cannot generate invite keys"
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You cannot generate invite keys",
         )
 
     invite = InviteKey(

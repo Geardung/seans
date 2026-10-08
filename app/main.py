@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.jobs.reaper import reaper_loop
+from app.routers.admin import router as admin_router
 from app.routers.arr import router as arr_router
 from app.routers.auth import router as auth_router
 from app.routers.history import router as history_router
@@ -40,6 +41,7 @@ app.add_middleware(
 )
 
 app.include_router(auth_router)
+app.include_router(admin_router)
 app.include_router(arr_router)
 app.include_router(media_router)
 app.include_router(tasks_router)

@@ -146,9 +146,7 @@ async def get_series_detail(sonarr_id: int) -> ArrSeries:
 
 async def get_episodes(sonarr_id: int) -> list[ArrEpisode]:
     async def factory() -> list[ArrEpisode]:
-        data = await _get_json(
-            "sonarr", f"/api/v3/episode?seriesId={sonarr_id}"
-        )
+        data = await _get_json("sonarr", f"/api/v3/episode?seriesId={sonarr_id}")
         return [map_episode(item) for item in data or []]
 
     return await arr_cache.get_or_set(
