@@ -13,3 +13,15 @@ adminer.seans.tedeshi.ru {
 jacred.seans.tedeshi.ru {
     reverse_proxy jacred:9117
 }
+
+sonarr.seans.tedeshi.ru {
+    reverse_proxy sonarr:8989
+}
+
+radarr.seans.tedeshi.ru {
+    reverse_proxy radarr:7878
+}
+
+bazarr.seans.tedeshi.ru {
+    reverse_proxy bazarr:6767
+}

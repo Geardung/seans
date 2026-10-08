@@ -28,6 +28,12 @@ class Settings(BaseSettings):
     TMDB_API_TOKEN: str = ""  # v3 API-ключ с themoviedb.org
     JACRED_URL: str = "http://localhost:9117"
     JACRED_API_KEY: str = ""
+    SONARR_URL: str = ""
+    SONARR_API_KEY: str = ""
+    RADARR_URL: str = ""
+    RADARR_API_KEY: str = ""
+    ARR_CACHE_TTL_SECONDS: int = 300
+    ARR_EPISODE_CACHE_TTL_SECONDS: int = 1800
     WORKER_REG_SECRET: str = "change-me"
     DEFAULT_QUOTA_BYTES: int = 10737418240
     LEASE_MINUTES: int = 10

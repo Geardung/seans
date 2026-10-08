@@ -45,6 +45,54 @@ services:
       driver: json-file
       options: { max-size: "10m", max-file: "3" }
 
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    restart: unless-stopped
+    environment:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: Europe/Moscow
+    volumes:
+      - sonarr_config:/config
+      - arr_data:/data
+    expose: ["8989"]
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    restart: unless-stopped
+    environment:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: Europe/Moscow
+    volumes:
+      - radarr_config:/config
+      - arr_data:/data
+    expose: ["7878"]
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    restart: unless-stopped
+    environment:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: Europe/Moscow
+    volumes:
+      - bazarr_config:/config
+      - arr_data:/data
+    expose: ["6767"]
+    depends_on:
+      - sonarr
+      - radarr
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
   frontend:
     build: ./frontend
     restart: unless-stopped
@@ -65,9 +113,16 @@ services:
       - frontend
       - adminer
       - jacred
+      - sonarr
+      - radarr
+      - bazarr
 
 volumes:
   pg_data:
   caddy_data:
   caddy_config:
   jacred_data:
+  arr_data:
+  sonarr_config:
+  radarr_config:
+  bazarr_config:
