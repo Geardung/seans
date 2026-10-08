@@ -1,14 +1,39 @@
 ---
 feature: arr-stack
-status: designed
+status: delivered
 updated: 2026-10-08
 branch: feat/arr-stack
-commits: 
+commits: 0916176..3d2afb3
 ---
 
 # arr-stack — Sonarr / Radarr / Bazarr + интеграция
 
 ## Report
+
+**What was built** — В compose добавлены Sonarr, Radarr и Bazarr (linuxserver,
+shared `arr_data`, без серверного qBittorrent) и Caddy-хосты
+sonarr/radarr/bazarr.seans.tedeshi.ru. Локальный JacRed остаётся для
+backend-releases; в Sonarr/Radarr как Torznab-индексатор прописан внешний
+JacRed `https://api.jacred.su/torznab` (TV/Anime для Sonarr, Movies для
+Radarr). Гайд `docs/arr-setup.md` описывает скачивание через **удалённый
+qBittorrent на машинах воркеров** (Web API) и заливку в S3 агентом воркера —
+без общего filesystem с root folders *arr.
+
+Бекенд отдаёт каталог `/api/arr/series|movies|episodes` (JWT, `?refresh=true`)
+через `app/services/arr.py` + process-local `TTLCache` (300s / 1800s для
+эпизодов). Сырой JSON Servarr v3 маппится в DTO; 503 без настроек, 502 на
+upstream, 404 через `ArrNotFound`. Очередь/hasFile из *arr и смена
+worker-протокола — вне скоупа; гибкость озвучек/quality/офлайн описана в
+`media-flexibility.md` (status: designed).
+
+**Verification** — `pytest tests/test_arr.py tests/test_arr_cache.py tests/test_arr_router.py -q`: 20 passed. `ruff check app/ tests/`: PASS. `docker compose config --services`: sonarr, radarr, bazarr присутствуют; qbittorrent в compose отсутствует. Полный `pytest tests/` с БД не гонялся (PRE-EXISTING: host `db` / нет docker PostgreSQL на хосте). Ревью: critical «нет router-тестов» закрыт (`test_arr_router.py`); re-review PASS.
+
+**Journey log**
+1. `git worktree add` заблокирован сессией — ветка `feat/arr-stack` в текущем checkout (база `production` / 0916176).
+2. Первичная спека ошибочно считала воркер sidecar'ом («читает /data/complete»). Уточнение: воркеры — отдельные машины, mount `/data` нет; qBittorrent живёт **на воркере**, *arr шлёт grab через Web API, S3 — presigned PUT с воркера.
+3. Серверный qBittorrent убран из compose: без общего FS с *arr он не даёт import в root folders.
+4. ArrNotFound нельзя кидать внутри `except httpx.HTTPError` при mock'е httpx (TypeError на except-clause) — 404 проверяется после try.
+5. Bazarr на сервере не видит файлы воркеров/S3 — в гайде три варианта (роль subtitle / sync / Bazarr на воркере); UI остаётся для провайдеров.
 
 ## [S1] Problem
 
@@ -243,12 +268,12 @@ seans-воркеров.
 
 ## Tasks
 
-- [ ] T1: docker-compose.yml — сервисы sonarr/radarr/bazarr (без серверного qbittorrent), volumes arr_data, depends_on caddy — acceptance: `docker compose config` валиден, сервисы видны, qbittorrent отсутствует (covers: S2.2, S2.3)
-- [ ] T2: Caddyfile — блоки sonarr/radarr/bazarr — acceptance: три хоста с reverse_proxy на верные порты (covers: S2.4)
-- [ ] T3: config + .env.example — SONARR_*/RADARR_*/ARR_CACHE_* — acceptance: Settings.load не падает, env-ключи на месте (covers: S2.6)
-- [ ] T4: app/services/arr_cache.py — TTLCache — acceptance: тесты hit/miss/expiry/invalidate зелёные (covers: S2.6)
-- [ ] T5: app/schemas/arr.py + app/services/arr.py — DTO, httpx-клиенты, маппинг — acceptance: unit-тесты маппинга и «не настроено» зелёные (covers: S2.6)
-- [ ] T6: app/routers/arr.py + регистрация в main — acceptance: тесты роутера (200/404/503/refresh) зелёные (covers: S2.6)
-- [ ] T7: docs/arr-setup.md — гайды Sonarr/Radarr/Bazarr/qBittorrent/JacRed/связки — acceptance: все шаги из S2.5 расписаны, пути S2.3 и API key источники указаны (covers: S2.1, S2.5)
-- [ ] T8: verify — pytest + ruff — acceptance: новые тесты PASS, lint без новых ошибок (covers: S2.6)
-- [ ] T9: (изолировано) media-flexibility spec — acceptance: `docs/compose/spec/media-flexibility.md` описывает роли файлов, парные задания video/audio, watch-party варианты, offline storage=local (covers: media-flexibility S2)
+- [x] T1: docker-compose.yml — сервисы sonarr/radarr/bazarr (без серверного qbittorrent), volumes arr_data, depends_on caddy — acceptance: `docker compose config` валиден, сервисы видны, qbittorrent отсутствует (covers: S2.2, S2.3)
+- [x] T2: Caddyfile — блоки sonarr/radarr/bazarr — acceptance: три хоста с reverse_proxy на верные порты (covers: S2.4)
+- [x] T3: config + .env.example — SONARR_*/RADARR_*/ARR_CACHE_* — acceptance: Settings.load не падает, env-ключи на месте (covers: S2.6)
+- [x] T4: app/services/arr_cache.py — TTLCache — acceptance: тесты hit/miss/expiry/invalidate зелёные (covers: S2.6)
+- [x] T5: app/schemas/arr.py + app/services/arr.py — DTO, httpx-клиенты, маппинг — acceptance: unit-тесты маппинга и «не настроено» зелёные (covers: S2.6)
+- [x] T6: app/routers/arr.py + регистрация в main — acceptance: тесты роутера (200/404/503/refresh) зелёные (covers: S2.6)
+- [x] T7: docs/arr-setup.md — гайды Sonarr/Radarr/Bazarr/qBittorrent/JacRed/связки — acceptance: все шаги из S2.5 расписаны, пути S2.3 и API key источники указаны (covers: S2.1, S2.5)
+- [x] T8: verify — pytest + ruff — acceptance: новые тесты PASS, lint без новых ошибок (covers: S2.6)
+- [x] T9: (изолировано) media-flexibility spec — acceptance: `docs/compose/spec/media-flexibility.md` описывает роли файлов, парные задания video/audio, watch-party варианты, offline storage=local (covers: media-flexibility S2)
