@@ -245,17 +245,20 @@ class ArrMovie(BaseModel):
 - router: 200 + cache hit, refresh=true бьёт в factory, 404, 503 без настроек
 - unit-тесты без сети (factory подменяется)
 
-### 2.7 Текущий JacRed-флоу в backend
+### 2.7 JacRed-флоу в backend (fallback)
 
-`app/services/indexer.py` и `/api/media/{id}/releases` **не меняются** —
-работают от локального `JACRED_URL`. Это отдельный канал релизов для
-seans-воркеров.
+`app/services/indexer.py` / `/api/media/{id}/releases`: primary — внешний
+JacRed REST (`JACRED_EXTERNAL_URL` + `JACRED_EXTERNAL_API_KEY`,
+`GET /api/search`, Bearer); fallback при ошибке сети/429/401/5xx —
+локальный Jackett-style (`JACRED_URL`, `/api/v2.0/indexers/all/results`).
+Пустой ответ внешнего — не fallback. Без `JACRED_EXTERNAL_*` — только
+локальный.
 
 ## [S3] Out of Scope
 
 - Раздельные аудио/видео-дорожки, multi-quality watch-party, офлайн без
   квоты — см. `docs/compose/spec/media-flexibility.md`
-- Перенос backend-релизов с локального JacRed на внешний `api.jacred.su`
+- Слияние результатов внешнего и локального JacRed (сейчас только fallback)
 - Изменение worker-протокола (magnet → qBit-on-worker → S3) и агента
   снятия completed с воркера — контракт в media-flexibility / отдельной задаче
 - Синхронизация каталога *arr в таблицу `media_items`

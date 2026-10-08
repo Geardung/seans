@@ -110,9 +110,26 @@ Settings → Indexers → Add → **Torznab**
 После добавления нажмите **Test**. Ошибки 401 — неверный API key;
 таймауты — сеть до `api.jacred.su`.
 
-Локальный `jacred.seans.tedeshi.ru` / `http://jacred:9117` — **отдельный**
-канал для backend `/api/media/{id}/releases`. В Sonarr его не добавляйте,
-если не нужен fallback.
+### Backend: внешний JacRed → локальный fallback
+
+Каталог релизов Seans (`/api/media/{id}/releases`) ходит во **внешний**
+JacRed REST (`GET https://api.jacred.su/api/search`, `Authorization: Bearer`),
+а при ошибке сети / 429 / 401 / 5xx — в **локальный** Jackett-совместимый
+эндпоинт. Пустой ответ внешнего не считается ошибкой (fallback нет).
+
+В `.env` backend:
+
+```env
+JACRED_EXTERNAL_URL=https://api.jacred.su
+JACRED_EXTERNAL_API_KEY=<ваш ключ api.jacred.su>
+# fallback (локальный JacRed в compose)
+JACRED_URL=http://jacred:9117
+JACRED_API_KEY=
+```
+
+Если `JACRED_EXTERNAL_*` пусты — backend работает только от локального.
+У личного ключа дневной лимит (`429`, `X-RateLimit-Remaining`); для сайта/
+бота — заявка в «Мои проекты» на безлимит.
 
 ### Качество и озвучки
 

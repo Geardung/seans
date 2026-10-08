@@ -28,6 +28,9 @@ class Settings(BaseSettings):
     TMDB_API_TOKEN: str = ""  # v3 API-ключ с themoviedb.org
     JACRED_URL: str = "http://localhost:9117"
     JACRED_API_KEY: str = ""
+    # External JacRed REST (primary search). Empty URL/key disables it and uses local only.
+    JACRED_EXTERNAL_URL: str = ""
+    JACRED_EXTERNAL_API_KEY: str = ""
     SONARR_URL: str = ""
     SONARR_API_KEY: str = ""
     RADARR_URL: str = ""
