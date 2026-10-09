@@ -26,7 +26,7 @@ worker-agents are separate projects; their protocols are specified here.
 - Python 3.12, FastAPI, Pydantic v2 + pydantic-settings
 - SQLAlchemy 2.0 async (asyncpg), Alembic (sync driver psycopg2-binary)
 - PostgreSQL 16 (docker)
-- boto3 for S3 (Reg.ru S3, endpoint https://s3.regru.cloud, bucket `seans`, path-style)
+- boto3 for S3 (S3-совместимое хранилище, endpoint https://s3.buckets.ru/, bucket `seans`, path-style)
 - JWT (pyjwt), passwords — passlib[bcrypt]
 - Tests: pytest + pytest-asyncio + httpx ASGI
 - No Redis/Celery/RabbitMQ — queue in PostgreSQL via SELECT ... FOR UPDATE SKIP LOCKED

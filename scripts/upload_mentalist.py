@@ -14,11 +14,11 @@ import boto3
 from botocore.config import Config
 
 # ── S3 credentials ──────────────────────────────────────────────────
-S3_ENDPOINT = "https://s3.regru.cloud"
+S3_ENDPOINT = "https://s3.buckets.ru/"
 S3_BUCKET = "seans"
-S3_ACCESS_KEY = "TB0184WVZSUWKC4UXAPR"
-S3_SECRET_KEY = "CfcmegLOq7BBX1Nt0nM92kWWgNFjCmTwofk7Sv8i"
-S3_REGION = "us-east-1"
+S3_ACCESS_KEY = "admin-HtDvSMkvFxTw"
+S3_SECRET_KEY = "F7wRRC87WcxK7KsxWD9DZFkFZSNcbf80"
+S3_REGION = "ru-1"
 
 # ── Paths ───────────────────────────────────────────────────────────
 SEASON_DIR = Path(r"D:\downloads\torrent\The.Mentalist.2008-2015.web-dlrip_[teko]\Season_01")

@@ -19,11 +19,11 @@ class Settings(BaseSettings):
     TEST_DATABASE_URL: str = "postgresql+asyncpg://seans:seans@db:5432/seans_test"
     JWT_SECRET: str = "change-me"
     JWT_TTL_DAYS: int = 7
-    S3_ENDPOINT: str = "https://s3.regru.cloud"
+    S3_ENDPOINT: str = "https://s3.buckets.ru/"
     S3_BUCKET: str = "seans"
     S3_ACCESS_KEY: str = ""
     S3_SECRET_KEY: str = ""
-    S3_REGION: str = "us-east-1"
+    S3_REGION: str = "ru-1"
     KP_API_TOKEN: str = ""
     TMDB_API_TOKEN: str = ""  # v3 API-ключ с themoviedb.org
     JACRED_URL: str = "http://localhost:9117"
